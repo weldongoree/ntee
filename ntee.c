@@ -1,43 +1,38 @@
 #include "ntee.h"
-FILE *get_stream(char *path)
-{
 	
-}
-
 int main(int argc, char **argv) 
 {
-	FILE *pipehandle;
-	struct timeval timeout;
-	timeout.tv_sec=0;
-	timeout.tv_usec=100;
-	int read_in, i;
 	
-	pid_t pipereader;
+	struct pollfd input_fds[argc - 1];
+	int i;
+ 	char read_buff[64];	
+	input_fds[0].fd = 0; /* stdin */
+	input_fds[0].events = 0;
+	input_fds[0].revents = 0;
+	ssize_t readcount;
 	for (i = 1; i < argc; i++)
 	{
-		if ((pipereader = fork()) == -1)
+		if (access(argv[i], F_OK) == -1)
 		{
-			perror("fork");
-			return -1;
+			mkfifo(argv[i], 0600);
 		}
-
-		if (pipereader == 0) 
-		{
-	 		pipehandle=fopen(argv[i], "r");			
-			int pipe_in;
-			while (pipe_in=fgetc(pipehandle))  
-			{
-				if (pipe_in != EOF)
-				{
-					putchar(pipe_in); 		
-				}
-			}				
-		}
+		input_fds[i].fd = open(argv[i], O_RDONLY);
+		input_fds[i].events = POLLRDNORM;
+		input_fds[i].revents = 0;
 	}
-	while ((read_in = getchar()) != EOF)
+        while (1)
 	{
-		putchar(read_in);		
-	}
+		poll(input_fds, argc, 0);
+		for (i = 0; i < argc; i++)
+		{
+			if (input_fds[i].revents)
+			{
+				readcount=read(input_fds[i].fd, &read_buff, 64);
+		/*		write(1, read_buff, 64); */ 
+				printf("Writing from %d\n", i);
+			}
+		}
+	}				
 	return 0;	
 }
 
