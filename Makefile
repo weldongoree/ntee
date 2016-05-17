@@ -5,5 +5,5 @@ ntee: ntee.c ntee.h
 	gcc -o ntee ntee.c
 
 clean:
-	rm ntee ntw
+	rm -f ntee ntw
 

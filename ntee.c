@@ -1,4 +1,8 @@
 #include "ntee.h"
+FILE *get_stream(char *path)
+{
+	
+}
 
 int main(int argc, char **argv) 
 {
@@ -6,25 +10,29 @@ int main(int argc, char **argv)
 	struct timeval timeout;
 	timeout.tv_sec=0;
 	timeout.tv_usec=100;
-	int read_in;
+	int read_in, i;
 	
 	pid_t pipereader;
-
-	if ((pipereader = fork()) == -1)
+	for (i = 1; i < argc; i++)
 	{
-		perror("fork");
-		return -1;
-	}
-
-	if (pipereader == 0) 
-	{
-	 	pipehandle=fopen("/tmp/ntee.pipe", "r");			
-		int pipe_in;
-		while ((pipe_in=fgetc(pipehandle)) != EOF)  
+		if ((pipereader = fork()) == -1)
 		{
-			putchar(pipe_in); 		
-		}				
-		return 0;	
+			perror("fork");
+			return -1;
+		}
+
+		if (pipereader == 0) 
+		{
+	 		pipehandle=fopen(argv[i], "r");			
+			int pipe_in;
+			while (pipe_in=fgetc(pipehandle))  
+			{
+				if (pipe_in != EOF)
+				{
+					putchar(pipe_in); 		
+				}
+			}				
+		}
 	}
 	while ((read_in = getchar()) != EOF)
 	{
