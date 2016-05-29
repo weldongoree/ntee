@@ -1,5 +1,10 @@
 #include "ntee.h"
-	
+
+void usage(char *argv1)
+{
+  printf("Usage: %s [ file ... ]\n", argv1);
+}
+
 int main(int argc, char **argv) 
 {
 	
@@ -27,7 +32,7 @@ int main(int argc, char **argv)
 		{
 			if (input_fds[i].revents & POLLRDNORM)
 			{
-				readcount=read(input_fds[i].fd, &read_buff, 64);
+				readcount=read(input_fds[i].fd, &read_buff, 64); 
 				if (readcount > 0)
 				{
 					write(1, read_buff, readcount);
