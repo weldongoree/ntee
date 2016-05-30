@@ -15,16 +15,29 @@ int main(int argc, char **argv)
 	input_fds[0].events = POLLIN | POLLRDNORM | POLLRDBAND | POLLPRI;
 	input_fds[0].revents = 0;
 	ssize_t readcount;
-	for (i = 1; i < argc; i++)
+	if (argc == 1) 
 	{
-		if (access(argv[i], F_OK) == -1)
+		if (access(ntee_pipedir, W_OK) == -1)
 		{
-			mkfifo(argv[i], 0600);
+			perror("Can't write to pipe directory");
+			return -1;
 		}
-		input_fds[i].fd = open(argv[i], O_RDONLY);
-		input_fds[i].events = POLLIN | POLLRDNORM | POLLRDBAND | POLLPRI;
-		input_fds[i].revents = 0;
+	 		
+		
 	}
+	else
+	{
+		for (i = 1; i < argc; i++)
+		{
+			if (access(argv[i], F_OK) == -1)
+			{
+				mkfifo(argv[i], 0600);
+			}
+			input_fds[i].fd = open(argv[i], O_RDONLY);
+			input_fds[i].events = POLLIN | POLLRDNORM | POLLRDBAND | POLLPRI;
+			input_fds[i].revents = 0;
+		}
+	}	
         while (1)
 	{
 		poll(input_fds, argc, 0);
